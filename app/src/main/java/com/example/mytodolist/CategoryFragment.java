@@ -1,9 +1,12 @@
 package com.example.mytodolist;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -13,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mytodolist.R;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +55,29 @@ public class CategoryFragment extends Fragment {
         tasks.add("Exemple de tâche 2");
         taskAdapter.notifyDataSetChanged();
 
+        // Gestion du bouton d'ajout de tâche
+        FloatingActionButton addTaskButton = view.findViewById(R.id.addTaskButton);
+        addTaskButton.setOnClickListener(v -> showAddTaskDialog());
+
         return view;
+    }
+    // Méthode pour afficher une boîte de dialogue d'ajout de tâche
+    private void showAddTaskDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Ajouter une tâche");
+
+        final EditText input = new EditText(requireContext());
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        builder.setView(input);
+
+        builder.setPositiveButton("Ajouter", (dialog, which) -> {
+            String taskName = input.getText().toString();
+            if (!taskName.isEmpty()) {
+                tasks.add(taskName);
+                taskAdapter.notifyDataSetChanged();
+            }
+        });
+        builder.setNegativeButton("Annuler", (dialog, which) -> dialog.cancel());
+        builder.show();
     }
 }
