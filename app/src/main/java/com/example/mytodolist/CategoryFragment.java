@@ -24,10 +24,17 @@ import java.util.List;
 public class CategoryFragment extends Fragment {
     //
     private static final String ARG_CATEGORY_NAME = "category_name";
-    private String categoryName; // Nom de la catégorie
-    private RecyclerView recyclerView;
+    private String categoryName;
+
+    private RecyclerView recyclerViewTasks;
+    private RecyclerView recyclerViewCompletedTasks;
+
     private TaskAdapter taskAdapter;
+    private TaskAdapter completedTaskAdapter;
+
     private List<String> tasks;
+    private List<String> completedTasks;
+
 
     // Méthode de création d'une instance de CategoryFragment
     public static CategoryFragment newInstance(String categoryName) {
@@ -42,18 +49,56 @@ public class CategoryFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_category, container, false);
-        // Initialiser RecyclerView et la liste des tâches
-        recyclerView = view.findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
+        // Récupérer le nom de la catégorie
+        String categoryName = getArguments().getString(ARG_CATEGORY_NAME);
+
+        // Initialisation des TextView pour les titres
+        TextView categoryTitle = view.findViewById(R.id.textViewCategoryTitle);
+        TextView completedTitle = view.findViewById(R.id.textViewCompletedTitle);
+
+        // Mettre à jour les titres
+        categoryTitle.setText(categoryName);
+        completedTitle.setText("Terminé");
+
+
+        // Initialiser RecyclerView et la liste des tâches
+        recyclerViewTasks = view.findViewById(R.id.recyclerViewTasks);
+        recyclerViewTasks.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        recyclerViewCompletedTasks = view.findViewById(R.id.recyclerViewCompletedTasks);
+        recyclerViewCompletedTasks.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        // Initialisation des listes
         tasks = new ArrayList<>();
-        taskAdapter = new TaskAdapter(tasks);
-        recyclerView.setAdapter(taskAdapter);
+        completedTasks = new ArrayList<>();
+
+        // Initialisation des adaptateurs
+        taskAdapter = new TaskAdapter(tasks, completedTasks, task -> {
+            // Ajouter la tâche terminée dans la liste des tâches terminées
+            completedTasks.add(task);
+            tasks.remove(task);
+            taskAdapter.notifyDataSetChanged();
+            completedTaskAdapter.notifyDataSetChanged();
+        });
+
+        completedTaskAdapter = new TaskAdapter(completedTasks, tasks, task -> {
+            // Ajouter la tâche de nouveau dans les tâches en cours
+            tasks.add(task);
+            completedTasks.remove(task);
+            taskAdapter.notifyDataSetChanged();
+            completedTaskAdapter.notifyDataSetChanged();
+        });
+
+
+        recyclerViewTasks.setAdapter(taskAdapter);
+        recyclerViewCompletedTasks.setAdapter(completedTaskAdapter);
 
         // Ajouter une tâche fictive pour tester
-        tasks.add("Exemple de tâche 1");
-        tasks.add("Exemple de tâche 2");
-        taskAdapter.notifyDataSetChanged();
+        tasks.add("Tâche en cours 1");
+        tasks.add("Tâche en cours 2");
+        completedTasks.add("Tâche terminée 1");
+
 
         // Gestion du bouton d'ajout de tâche
         FloatingActionButton addTaskButton = view.findViewById(R.id.addTaskButton);
