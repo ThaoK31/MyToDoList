@@ -32,8 +32,8 @@ public class CategoryFragment extends Fragment {
     private TaskAdapter taskAdapter;
     private TaskAdapter completedTaskAdapter;
 
-    private List<String> tasks;
-    private List<String> completedTasks;
+    private List<Task> tasks;
+    private List<Task> completedTasks;
 
 
     // Méthode de création d'une instance de CategoryFragment
@@ -95,9 +95,9 @@ public class CategoryFragment extends Fragment {
         recyclerViewCompletedTasks.setAdapter(completedTaskAdapter);
 
         // Ajouter une tâche fictive pour tester
-        tasks.add("Tâche en cours 1");
-        tasks.add("Tâche en cours 2");
-        completedTasks.add("Tâche terminée 1");
+        tasks.add(new Task("Tâche en cours 1", false));
+        tasks.add(new Task("Tâche en cours 2", false));
+        completedTasks.add(new Task("Tâche terminée 1", true));
 
 
         // Gestion du bouton d'ajout de tâche
@@ -118,7 +118,7 @@ public class CategoryFragment extends Fragment {
         builder.setPositiveButton("Ajouter", (dialog, which) -> {
             String taskName = input.getText().toString();
             if (!taskName.isEmpty()) {
-                tasks.add(taskName);
+                tasks.add(new Task(taskName, false));
                 taskAdapter.notifyDataSetChanged();
             }
         });
