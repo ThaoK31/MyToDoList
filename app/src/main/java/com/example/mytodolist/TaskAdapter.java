@@ -13,14 +13,14 @@ import java.util.List;
 
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder> {
 
-    private List<String> taskList;
-    private List<String> otherList; // Liste pour déplacer la tâche
+    private List<Task> taskList;
+    private List<Task> otherList; // Liste pour déplacer la tâche
     private OnTaskCheckedListener onTaskCheckedListener;
 
     public interface OnTaskCheckedListener {
-        void onTaskChecked(String task);
+        void onTaskChecked(Task task);
     }
-    public TaskAdapter(List<String> taskList, List<String> otherList, OnTaskCheckedListener onTaskCheckedListener) {
+    public TaskAdapter(List<Task> taskList, List<Task> otherList, OnTaskCheckedListener onTaskCheckedListener) {
         this.taskList = taskList;
         this.otherList = otherList;
         this.onTaskCheckedListener = onTaskCheckedListener;
@@ -35,17 +35,18 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull TaskViewHolder holder, int position) {
-        String task = taskList.get(position);
-        holder.taskTitle.setText(task);
+        Task task = taskList.get(position);
+        holder.taskTitle.setText(task.getTitle());
 
+        // Empêche les callbacks inutiles
+        holder.taskCheckBox.setOnCheckedChangeListener(null);
         // Configure la checkbox
-        holder.taskCheckBox.setOnCheckedChangeListener(null); // Empêche les callbacks inutiles
-        holder.taskCheckBox.setChecked(otherList.contains(task));
+        holder.taskCheckBox.setChecked(task.isCompleted());
 
         holder.taskCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                onTaskCheckedListener.onTaskChecked(task); // Déplacer la tâche
-            }
+            task.setCompleted(isChecked); // Mettre à jour l'état de la tâche
+            onTaskCheckedListener.onTaskChecked(task);
+            notifyItemChanged(holder.getAdapterPosition());
         });
 
     }
