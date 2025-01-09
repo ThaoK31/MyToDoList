@@ -1,5 +1,6 @@
 package com.example.mytodolist;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,13 +10,16 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.util.List;
 
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder> {
 
     private List<Task> taskList;
     private List<Task> otherList; // Liste pour déplacer la tâche
-    private OnTaskCheckedListener onTaskCheckedListener;
+    private final OnTaskCheckedListener onTaskCheckedListener;
 
     public interface OnTaskCheckedListener {
         void onTaskChecked(Task task);
@@ -47,6 +51,35 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             task.setCompleted(isChecked); // Mettre à jour l'état de la tâche
             onTaskCheckedListener.onTaskChecked(task);
             notifyItemChanged(holder.getAdapterPosition());
+
+            // Vérifiez que l'ID et le nom de catégorie sont définis
+            if (task.getId() == null || task.getCategoryName() == null) {
+                Log.e("TaskAdapter", "L'ID ou le nom de catégorie est null. Impossible de mettre à jour Firebase.");
+                return;
+            }
+            else {
+                Log.d("TaskAdapter", "ID de la tâche: " + task.getId());
+                Log.d("TaskAdapter", "Nom de la catégorie: " + task.getCategoryName());
+            }
+
+            // Référence Firebase pour la tâche
+            DatabaseReference taskRef = FirebaseDatabase.getInstance()
+                    .getReference("categories")
+                    .child(task.getCategoryName()) // Assurez-vous que la tâche a une propriété `categoryName` si nécessaire
+                    .child("tasks")
+                    .child(task.getId());
+
+            // Mise à jour partielle des champs
+                taskRef.child("completed").setValue(isChecked).addOnCompleteListener(updatetask -> {
+                    if (updatetask.isSuccessful()) {
+                        Log.d("TaskAdapter", "État de la tâche mis à jour dans Firebase.");
+                    } else {
+                        Log.e("TaskAdapter", "Erreur lors de la mise à jour de la tâche.", updatetask.getException());
+                    }
+                });
+
+            notifyItemChanged(holder.getAdapterPosition());
+
         });
 
     }

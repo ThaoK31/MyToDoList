@@ -8,6 +8,7 @@ import android.widget.ImageButton;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -17,7 +18,13 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -25,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private CategoryAdapter categoryAdapter;
     private TabLayout tabLayout;
     private ViewPager2 viewPager;
+    private DatabaseReference categoriesRef;
 
 
 
@@ -51,13 +59,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        categoriesRef = database.getReference("categories");
+
+        // Charger les catégories depuis Firebase
+        loadCategoriesFromFirebase();
+
         // Initialisation de l'adaptateur de catégories
         tabLayout = findViewById(R.id.tabLayout);
         viewPager = findViewById(R.id.viewPager);
         ImageButton addButton = findViewById(R.id.addButton);
 
         // Catégories initiales
-        List<String> initialCategories = Arrays.asList("Tâches", "Travail", "Personnel","test1","test2");
+        List<String> initialCategories = Arrays.asList("Tâches", "Travail", "Personnel", "test1", "test2");
         categoryAdapter = new CategoryAdapter(this, initialCategories);
 
         // Associer l'adaptateur à la vue ViewPager
@@ -83,10 +97,42 @@ public class MainActivity extends AppCompatActivity {
         builder.setPositiveButton("Ajouter", (dialog, which) -> {
             String categoryName = input.getText().toString();
             if (!categoryName.isEmpty()) {
-                categoryAdapter.addCategory(categoryName);
+                // Ajouter la catégorie à Firebase
+                categoriesRef.child(categoryName).setValue(true).addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Log.d("MainActivity", "Catégorie ajoutée avec succès." + categoryName);
+                    } else {
+                        Log.e("MainActivity", "Erreur lors de l'ajout de la catégorie.", task.getException());
+                    }
+                });
             }
         });
         builder.setNegativeButton("Annuler", (dialog, which) -> dialog.cancel());
         builder.show();
     }
+
+    private void loadCategoriesFromFirebase() {
+        categoriesRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                List<String> categories = new ArrayList<>();
+                for (DataSnapshot categorySnapshot : snapshot.getChildren()) {
+                    categories.add(categorySnapshot.getKey()); // Le nom de la catégorie
+                }
+                categoryAdapter = new CategoryAdapter(MainActivity.this, categories);
+                viewPager.setAdapter(categoryAdapter);
+
+                // Associer la vue TabLayout à la vue ViewPager
+                new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
+                    tab.setText(categoryAdapter.categoryList.get(position));
+                }).attach();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("MainActivity", "Erreur de lecture des catégories.", error.toException());
+            }
+        });
+    }
 }
+
