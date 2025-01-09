@@ -3,11 +3,18 @@ package com.example.mytodolist;
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseException;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mytodolist.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +43,10 @@ public class CategoryFragment extends Fragment {
     private List<Task> tasks;
     private List<Task> completedTasks;
 
+    private DatabaseReference taskRef;
+
+    private ValueEventListener taskEventListener;
+
 
     // Méthode de création d'une instance de CategoryFragment
     public static CategoryFragment newInstance(String categoryName) {
@@ -52,7 +64,17 @@ public class CategoryFragment extends Fragment {
 
         // Récupérer le nom de la catégorie
         String categoryName = getArguments().getString(ARG_CATEGORY_NAME);
+        Log.d("CategoryFragment", "Nom de la catégorie : " + categoryName);
 
+        // Initialiser la référence à la base de données
+        //categories/
+        //  categoryName/
+        //    tasks/
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+
+        taskRef = database.getReference("categories").child(categoryName).child("tasks");
+
+        Log.d("CategoryFragment", "onCreateView: " + taskRef.toString());
         // Initialisation des TextView pour les titres
         TextView categoryTitle = view.findViewById(R.id.textViewCategoryTitle);
         TextView completedTitle = view.findViewById(R.id.textViewCompletedTitle);
@@ -89,15 +111,53 @@ public class CategoryFragment extends Fragment {
             taskAdapter.notifyDataSetChanged();
             completedTaskAdapter.notifyDataSetChanged();
         });
+        taskEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                tasks.clear(); // Réinitialise la liste locale
+                completedTasks.clear();
+                if (snapshot.exists()) {
+                    Log.d("CategoryFragment", "Nombre d'éléments dans snapshot : " + snapshot.getChildrenCount());
+                    for (DataSnapshot taskSnapshot : snapshot.getChildren()) {
+
+                        // Vérifiez si les données peuvent être converties en un objet Task
+                        try {
+                            Task task = taskSnapshot.getValue(Task.class); // Convertir les données Firebase en objet Task
+                            if (task != null) {
+                                if (task.isCompleted()) {
+                                    completedTasks.add(task); // Ajouter aux tâches terminées
+                                } else {
+                                    tasks.add(task); // Ajouter aux tâches en cours
+                                }
+                            }
+                        } catch (DatabaseException e) {
+                            Log.e("CategoryFragment", "Erreur de conversion des données Firebase : " + e.getMessage());
+                        }
+                    }
+                    taskAdapter.notifyDataSetChanged();
+                    completedTaskAdapter.notifyDataSetChanged();
+                }
+                else {
+                    Log.d("CategoryFragment", "Aucune tâche trouvée");
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.w("APPX", "Failed to read value.", error.toException());
+            }
+        };
+        taskRef.addValueEventListener(taskEventListener);
 
 
         recyclerViewTasks.setAdapter(taskAdapter);
         recyclerViewCompletedTasks.setAdapter(completedTaskAdapter);
 
         // Ajouter une tâche fictive pour tester
-        tasks.add(new Task("Tâche en cours 1", false));
-        tasks.add(new Task("Tâche en cours 2", false));
-        completedTasks.add(new Task("Tâche terminée 1", true));
+        //tasks.add(new Task("Tâche en cours 1", false));
+        //tasks.add(new Task("Tâche en cours 2", false));
+        //completedTasks.add(new Task("Tâche terminée 1", true));
 
 
         // Gestion du bouton d'ajout de tâche
@@ -117,9 +177,29 @@ public class CategoryFragment extends Fragment {
 
         builder.setPositiveButton("Ajouter", (dialog, which) -> {
             String taskName = input.getText().toString();
+            Log.d("CategoryFragment", "Nom de la tâche : " + taskName);
             if (!taskName.isEmpty()) {
-                tasks.add(new Task(taskName, false));
-                taskAdapter.notifyDataSetChanged();
+                String categoryName = getArguments().getString(ARG_CATEGORY_NAME);
+
+            // Générer un ID unique pour la tâche
+                DatabaseReference newTaskRef = taskRef.push();
+                String id = newTaskRef.getKey();
+
+                Log.d("CategoryFragment", "categoryName" + categoryName);
+                Task newTask =new Task(id, taskName, false, categoryName);
+                Log.d("CategoryFragment","Nouvelle tâche : " + newTask.getTitle());
+
+                // Ajouter la tâche dans la base de données
+                Log.d("CategoryFragment", taskRef.toString());
+                newTaskRef.setValue(newTask).addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Log.d("CategoryFragment", "Tâche ajoutée avec succès !");
+                        taskAdapter.notifyDataSetChanged();
+
+                    } else {
+                        Log.e("CategoryFragment", "Erreur lors de l'ajout de la tâche", task.getException());
+                    }
+                });
             }
         });
         builder.setNegativeButton("Annuler", (dialog, which) -> dialog.cancel());

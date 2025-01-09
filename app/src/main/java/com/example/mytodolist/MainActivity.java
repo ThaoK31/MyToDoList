@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         ImageButton addButton = findViewById(R.id.addButton);
 
         // Catégories initiales
-        List<String> initialCategories = Arrays.asList("Tâches", "Travail", "Personnel","test1","test2");
+        List<String> initialCategories = Arrays.asList("Tâches", "Travail", "Personnel", "test1", "test2");
         categoryAdapter = new CategoryAdapter(this, initialCategories);
 
         // Associer l'adaptateur à la vue ViewPager
