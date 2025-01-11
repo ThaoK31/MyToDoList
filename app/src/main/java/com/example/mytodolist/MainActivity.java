@@ -75,15 +75,34 @@ public class MainActivity extends AppCompatActivity {
 
         // Associer l'adaptateur à la vue ViewPager
         viewPager.setAdapter(categoryAdapter);
+        
+        // Empêcher le swipe horizontal si pas de catégories
+        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                Log.d("MainActivity", "Page sélectionnée: " + position);
+            }
+        });
 
         // Associer la vue TabLayout à la vue ViewPager
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
-            tab.setText(categoryAdapter.categoryList.get(position));
-            Log.d("TAG", "onCreate: ".concat(String.valueOf(position)));
+            if (position < categoryAdapter.categoryList.size()) {
+                tab.setText(categoryAdapter.categoryList.get(position));
+            }
         }).attach();
 
         applyTabLongClickListeners();
         addButton.setOnClickListener(v -> showAddCategoryDialog(categoryAdapter, tabLayout));
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Nettoyer les listeners pour éviter les fuites de mémoire
+        if (viewPager != null) {
+            viewPager.unregisterOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {});
+        }
     }
 
     private void showAddCategoryDialog(CategoryAdapter categoryAdapter, TabLayout tabLayout) {
@@ -95,19 +114,29 @@ public class MainActivity extends AppCompatActivity {
         builder.setView(input);
 
         builder.setPositiveButton("Ajouter", (dialog, which) -> {
-            String categoryName = input.getText().toString();
-            if (!categoryName.isEmpty()) {
-                // Ajouter la catégorie à Firebase
-                categoriesRef.child(categoryName).setValue(true).addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        Log.d("MainActivity", "Catégorie ajoutée avec succès." + categoryName);
-                        categoryAdapter.addCategory(categoryName); // Met à jour l'adaptateur localement
+            String categoryName = input.getText().toString().trim();
+            if (categoryName.isEmpty()) {
+                showError("Erreur", "Le nom de la catégorie ne peut pas être vide");
+                return;
+            }
 
+            // Vérifier si la catégorie existe déjà
+            categoriesRef.child(categoryName).get().addOnCompleteListener(task -> {
+                if (task.isSuccessful() && task.getResult().exists()) {
+                    showError("Erreur", "Cette catégorie existe déjà");
+                    return;
+                }
+
+                // Ajouter la catégorie à Firebase
+                categoriesRef.child(categoryName).setValue(true).addOnCompleteListener(addTask -> {
+                    if (addTask.isSuccessful()) {
+                        Log.d("MainActivity", "Catégorie ajoutée avec succès: " + categoryName);
                     } else {
-                        Log.e("MainActivity", "Erreur lors de l'ajout de la catégorie.", task.getException());
+                        showError("Erreur", "Impossible d'ajouter la catégorie");
+                        Log.e("MainActivity", "Erreur lors de l'ajout de la catégorie", addTask.getException());
                     }
                 });
-            }
+            });
         });
         builder.setNegativeButton("Annuler", (dialog, which) -> dialog.cancel());
         builder.show();
@@ -117,29 +146,40 @@ public class MainActivity extends AppCompatActivity {
         categoriesRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                int currentTab = viewPager.getCurrentItem(); // Sauvegarde l'onglet actuel
+                try {
+                    int currentTab = viewPager.getCurrentItem(); // Sauvegarde l'onglet actuel
 
-                List<String> categories = new ArrayList<>();
-                for (DataSnapshot categorySnapshot : snapshot.getChildren()) {
-                    categories.add(categorySnapshot.getKey()); // Le nom de la catégorie
+                    List<String> categories = new ArrayList<>();
+                    for (DataSnapshot categorySnapshot : snapshot.getChildren()) {
+                        categories.add(categorySnapshot.getKey()); // Le nom de la catégorie
+                    }
+                    categoryAdapter = new CategoryAdapter(MainActivity.this, categories);
+                    viewPager.setAdapter(categoryAdapter);
+
+                    // Associer la vue TabLayout à la vue ViewPager
+                    new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
+                        tab.setText(categoryAdapter.categoryList.get(position));
+                    }).attach();
+
+                    // Réappliquer les listeners de clic long
+                    applyTabLongClickListeners();
+                    
+                    // Restaurer l'onglet actif seulement s'il existe toujours
+                    if (currentTab < categories.size()) {
+                        viewPager.setCurrentItem(currentTab, false);
+                    } else if (!categories.isEmpty()) {
+                        viewPager.setCurrentItem(0, false);
+                    }
+                } catch (Exception e) {
+                    Log.e("MainActivity", "Erreur lors du chargement des catégories", e);
+                    showError("Erreur", "Impossible de charger les catégories");
                 }
-                categoryAdapter = new CategoryAdapter(MainActivity.this, categories);
-                viewPager.setAdapter(categoryAdapter);
-
-                // Associer la vue TabLayout à la vue ViewPager
-                new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
-                    tab.setText(categoryAdapter.categoryList.get(position));
-                }).attach();
-
-                // Réappliquer les listeners de clic long
-                applyTabLongClickListeners();
-                
-                viewPager.setCurrentItem(currentTab, false); // Restaure l'onglet actif
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Log.e("MainActivity", "Erreur de lecture des catégories.", error.toException());
+                showError("Erreur", "Impossible de charger les catégories");
             }
         });
     }
@@ -173,5 +213,14 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         }
+    }
+
+    // Méthode utilitaire pour afficher les erreurs
+    private void showError(String title, String message) {
+        new AlertDialog.Builder(this)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton("OK", null)
+                .show();
     }
 }
