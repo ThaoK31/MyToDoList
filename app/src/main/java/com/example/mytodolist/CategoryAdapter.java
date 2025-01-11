@@ -39,4 +39,10 @@ public class CategoryAdapter extends FragmentStateAdapter {
         categoryList.add(categoryName);
         notifyItemInserted(categoryList.size() - 1);
     }
+
+    public void updateCategories(List<String> newCategories) {
+        categoryList.clear();
+        categoryList.addAll(newCategories);
+        notifyDataSetChanged(); // Notifie le changement des données
+    }
 }
