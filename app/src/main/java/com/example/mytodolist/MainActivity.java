@@ -69,6 +69,13 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        // Bouton Paramètres
+        MaterialButton settingsButton = findViewById(R.id.settingsButton);
+        settingsButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+            startActivity(intent);
+        });
+
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         categoriesRef = database.getReference("categories");
