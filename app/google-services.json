@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "282437202167",
+    "firebase_url": "https://mytodolist-3de64-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "mytodolist-3de64",
+    "storage_bucket": "mytodolist-3de64.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:282437202167:android:4672a93b454ec06cb623f2",
+        "android_client_info": {
+          "package_name": "com.example.mytodolist"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4RdsoP_GZBnSZv17wikaYFA5HiKHiIgk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
