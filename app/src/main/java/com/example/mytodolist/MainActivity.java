@@ -1,5 +1,6 @@
 package com.example.mytodolist;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
@@ -60,6 +61,14 @@ public class MainActivity extends AppCompatActivity {
                         .show();
             }
         });
+
+        // Bouton A propos
+        MaterialButton aboutButton = findViewById(R.id.aboutButton);
+        aboutButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, AboutActivity.class);
+            startActivity(intent);
+        });
+
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         categoriesRef = database.getReference("categories");
