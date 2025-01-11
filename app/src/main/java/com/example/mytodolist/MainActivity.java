@@ -101,6 +101,8 @@ public class MainActivity extends AppCompatActivity {
                 categoriesRef.child(categoryName).setValue(true).addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         Log.d("MainActivity", "Catégorie ajoutée avec succès." + categoryName);
+                        categoryAdapter.addCategory(categoryName); // Met à jour l'adaptateur localement
+
                     } else {
                         Log.e("MainActivity", "Erreur lors de l'ajout de la catégorie.", task.getException());
                     }
@@ -115,6 +117,8 @@ public class MainActivity extends AppCompatActivity {
         categoriesRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                int currentTab = viewPager.getCurrentItem(); // Sauvegarde l'onglet actuel
+
                 List<String> categories = new ArrayList<>();
                 for (DataSnapshot categorySnapshot : snapshot.getChildren()) {
                     categories.add(categorySnapshot.getKey()); // Le nom de la catégorie
@@ -126,6 +130,8 @@ public class MainActivity extends AppCompatActivity {
                 new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
                     tab.setText(categoryAdapter.categoryList.get(position));
                 }).attach();
+                viewPager.setCurrentItem(currentTab, false); // Restaure l'onglet actif
+
             }
 
             @Override
@@ -135,4 +141,3 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 }
-
