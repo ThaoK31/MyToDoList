@@ -1,6 +1,4 @@
 <resources>
     <string name="app_name">MyToDoList</string>
     <string name="to_do_list">To-Do-List</string>
-    <string name="ajouter_une_tache">Ajouter une tâche</string>
-    <string name="ajouter_une_categorie">Ajouter une catégorie</string>
 </resources>

@@ -17,31 +17,32 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:padding="8dp">
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
 
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/tabLayout"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 app:layout_constraintTop_toTopOf="parent"
+
                 app:tabGravity="fill"
                 app:tabIndicatorColor="@color/teal_200"
                 app:tabMode="scrollable"
                 app:tabSelectedTextColor="@color/black"
-                app:tabTextColor="@color/gray"/>
+                app:tabTextColor="@color/gray">
+
+            </com.google.android.material.tabs.TabLayout>
             <ImageButton
                 android:id="@+id/addButton"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:layout_marginStart="8dp"
+                android:layout_marginEnd="0dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/ajouter_une_categorie"
+                android:contentDescription="Add Category"
                 android:src="@drawable/round_add"
-                android:scaleType="center" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 </LinearLayout>
 
     </com.google.android.material.appbar.AppBarLayout>
