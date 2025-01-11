@@ -23,6 +23,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     private TabLayout tabLayout;
     private ViewPager2 viewPager;
     private DatabaseReference categoriesRef;
+    private MaterialButton addButton;
 
 
 
@@ -68,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         // Initialisation de l'adaptateur de catégories
         tabLayout = findViewById(R.id.tabLayout);
         viewPager = findViewById(R.id.viewPager);
-        ImageButton addButton = findViewById(R.id.addButton);
+        addButton = findViewById(R.id.addButton);
 
         // Initialiser avec une liste vide
         categoryAdapter = new CategoryAdapter(this, new ArrayList<>());

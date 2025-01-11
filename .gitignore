@@ -13,3 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+notation.md
+readme.md
