@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -20,14 +21,21 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     private List<Task> taskList;
     private List<Task> otherList; // Liste pour déplacer la tâche
     private final OnTaskCheckedListener onTaskCheckedListener;
+    private final OnTaskDeleteListener onTaskDeleteListener;
 
     public interface OnTaskCheckedListener {
         void onTaskChecked(Task task);
     }
-    public TaskAdapter(List<Task> taskList, List<Task> otherList, OnTaskCheckedListener onTaskCheckedListener) {
+
+    public interface OnTaskDeleteListener {
+        void onTaskDelete(Task task);
+    }
+
+    public TaskAdapter(List<Task> taskList, List<Task> otherList, OnTaskCheckedListener onTaskCheckedListener, OnTaskDeleteListener onTaskDeleteListener) {
         this.taskList = taskList;
         this.otherList = otherList;
         this.onTaskCheckedListener = onTaskCheckedListener;
+        this.onTaskDeleteListener = onTaskDeleteListener;
     }
 
     @NonNull
@@ -44,44 +52,52 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
         // Empêche les callbacks inutiles
         holder.taskCheckBox.setOnCheckedChangeListener(null);
-        // Configure la checkbox
+        
+        // Configure la checkbox et le style du texte
         holder.taskCheckBox.setChecked(task.isCompleted());
+        if (task.isCompleted()) {
+            holder.taskTitle.setPaintFlags(holder.taskTitle.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
+            holder.taskTitle.setAlpha(0.5f);
+        } else {
+            holder.taskTitle.setPaintFlags(holder.taskTitle.getPaintFlags() & ~android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
+            holder.taskTitle.setAlpha(1.0f);
+        }
+
+        holder.deleteButton.setOnClickListener(v -> {
+            if (onTaskDeleteListener != null) {
+                onTaskDeleteListener.onTaskDelete(task);
+            }
+        });
 
         holder.taskCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            task.setCompleted(isChecked); // Mettre à jour l'état de la tâche
+            task.setCompleted(isChecked);
+            // Mettre à jour l'apparence immédiatement
+            if (isChecked) {
+                holder.taskTitle.setPaintFlags(holder.taskTitle.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
+                holder.taskTitle.setAlpha(0.5f);
+            } else {
+                holder.taskTitle.setPaintFlags(holder.taskTitle.getPaintFlags() & ~android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
+                holder.taskTitle.setAlpha(1.0f);
+            }
+            
             onTaskCheckedListener.onTaskChecked(task);
-            notifyItemChanged(holder.getAdapterPosition());
 
             // Vérifiez que l'ID et le nom de catégorie sont définis
             if (task.getId() == null || task.getCategoryName() == null) {
                 Log.e("TaskAdapter", "L'ID ou le nom de catégorie est null. Impossible de mettre à jour Firebase.");
                 return;
             }
-            else {
-                Log.d("TaskAdapter", "ID de la tâche: " + task.getId());
-                Log.d("TaskAdapter", "Nom de la catégorie: " + task.getCategoryName());
-            }
 
-            // Référence Firebase pour la tâche
-            DatabaseReference taskRef = FirebaseDatabase.getInstance()
-                    .getReference("categories")
-                    .child(task.getCategoryName()) // Assurez-vous que la tâche a une propriété `categoryName` si nécessaire
-                    .child("tasks")
-                    .child(task.getId());
-
-            // Mise à jour partielle des champs
-                taskRef.child("completed").setValue(isChecked).addOnCompleteListener(updatetask -> {
+            // Mise à jour dans Firebase
+            FirebaseUtils.getTaskRef(task, task.getCategoryName()).child("completed").setValue(isChecked)
+                .addOnCompleteListener(updatetask -> {
                     if (updatetask.isSuccessful()) {
                         Log.d("TaskAdapter", "État de la tâche mis à jour dans Firebase.");
                     } else {
                         Log.e("TaskAdapter", "Erreur lors de la mise à jour de la tâche.", updatetask.getException());
                     }
                 });
-
-            notifyItemChanged(holder.getAdapterPosition());
-
         });
-
     }
 
     @Override
@@ -92,11 +108,13 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     public static class TaskViewHolder extends RecyclerView.ViewHolder {
         TextView taskTitle;
         CheckBox taskCheckBox;
+        ImageButton deleteButton;
 
         public TaskViewHolder(@NonNull View itemView) {
             super(itemView);
             taskTitle = itemView.findViewById(R.id.taskTitle);
             taskCheckBox = itemView.findViewById(R.id.taskCheckBox);
+            deleteButton = itemView.findViewById(R.id.deleteTaskButton);
         }
     }
 }
