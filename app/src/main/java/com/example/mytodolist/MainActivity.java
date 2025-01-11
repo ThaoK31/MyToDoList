@@ -70,9 +70,8 @@ public class MainActivity extends AppCompatActivity {
         viewPager = findViewById(R.id.viewPager);
         ImageButton addButton = findViewById(R.id.addButton);
 
-        // Catégories initiales
-        List<String> initialCategories = Arrays.asList("Tâches", "Travail", "Personnel", "test1", "test2");
-        categoryAdapter = new CategoryAdapter(this, initialCategories);
+        // Initialiser avec une liste vide
+        categoryAdapter = new CategoryAdapter(this, new ArrayList<>());
 
         // Associer l'adaptateur à la vue ViewPager
         viewPager.setAdapter(categoryAdapter);
@@ -82,10 +81,11 @@ public class MainActivity extends AppCompatActivity {
             tab.setText(categoryAdapter.categoryList.get(position));
             Log.d("TAG", "onCreate: ".concat(String.valueOf(position)));
         }).attach();
+
+        applyTabLongClickListeners();
         addButton.setOnClickListener(v -> showAddCategoryDialog(categoryAdapter, tabLayout));
-
-
     }
+
     private void showAddCategoryDialog(CategoryAdapter categoryAdapter, TabLayout tabLayout) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Ajouter une catégorie");
@@ -130,8 +130,11 @@ public class MainActivity extends AppCompatActivity {
                 new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
                     tab.setText(categoryAdapter.categoryList.get(position));
                 }).attach();
-                viewPager.setCurrentItem(currentTab, false); // Restaure l'onglet actif
 
+                // Réappliquer les listeners de clic long
+                applyTabLongClickListeners();
+                
+                viewPager.setCurrentItem(currentTab, false); // Restaure l'onglet actif
             }
 
             @Override
@@ -139,5 +142,36 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("MainActivity", "Erreur de lecture des catégories.", error.toException());
             }
         });
+    }
+
+    private void showDeleteCategoryDialog(String categoryName) {
+        new AlertDialog.Builder(this)
+                .setTitle("Supprimer la catégorie")
+                .setMessage("Voulez-vous vraiment supprimer la catégorie \"" + categoryName + "\" ?")
+                .setPositiveButton("Supprimer", (dialog, which) -> {
+                    // Supprimer la catégorie de Firebase
+                    DatabaseReference categoryRef = categoriesRef.child(categoryName);
+                    categoryRef.removeValue()
+                            .addOnSuccessListener(aVoid -> {
+                                Log.d("MainActivity", "Catégorie supprimée avec succès: " + categoryName);
+                            })
+                            .addOnFailureListener(e -> {
+                                Log.e("MainActivity", "Erreur lors de la suppression de la catégorie", e);
+                            });
+                })
+                .setNegativeButton("Annuler", null)
+                .show();
+    }
+
+    private void applyTabLongClickListeners() {
+        for (int i = 0; i < tabLayout.getTabCount(); i++) {
+            TabLayout.Tab tab = tabLayout.getTabAt(i);
+            if (tab != null) {
+                tab.view.setOnLongClickListener(v -> {
+                    showDeleteCategoryDialog(tab.getText().toString());
+                    return true;
+                });
+            }
+        }
     }
 }

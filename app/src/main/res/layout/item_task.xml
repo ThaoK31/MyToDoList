@@ -3,21 +3,32 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="8dp">
-
-<!-- Case à cocher -->
-<CheckBox
-    android:id="@+id/taskCheckBox"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content" />
-
-<TextView
-    android:id="@+id/taskTitle"
-    android:layout_width="0dp"
-    android:layout_height="wrap_content"
-    android:layout_weight="1"
     android:padding="8dp"
-    android:textSize="16sp"
-    android:textColor="@color/black" />
+    android:gravity="center_vertical"
+    android:background="?android:attr/selectableItemBackground">
+
+    <CheckBox
+        android:id="@+id/taskCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:buttonTint="@color/teal_200" />
+
+    <TextView
+        android:id="@+id/taskTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:padding="8dp"
+        android:textSize="16sp"
+        android:textColor="@color/black" />
+
+    <ImageButton
+        android:id="@+id/deleteTaskButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@android:drawable/ic_menu_delete"
+        android:contentDescription="Supprimer la tâche"
+        android:padding="8dp" />
 </LinearLayout>
 

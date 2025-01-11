@@ -47,7 +47,6 @@ public class CategoryFragment extends Fragment {
 
     private ValueEventListener taskEventListener;
 
-
     // Méthode de création d'une instance de CategoryFragment
     public static CategoryFragment newInstance(String categoryName) {
         CategoryFragment fragment = new CategoryFragment();
@@ -97,19 +96,45 @@ public class CategoryFragment extends Fragment {
 
         // Initialisation des adaptateurs
         taskAdapter = new TaskAdapter(tasks, completedTasks, task -> {
-            // Ajouter la tâche terminée dans la liste des tâches terminées
-            completedTasks.add(task);
-            tasks.remove(task);
-            taskAdapter.notifyDataSetChanged();
-            completedTaskAdapter.notifyDataSetChanged();
+            // Mettre à jour l'état dans Firebase
+            task.setCompleted(true);
+            FirebaseUtils.getTaskRef(task, categoryName).child("completed").setValue(true)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("CategoryFragment", "Task marked as completed in Firebase");
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("CategoryFragment", "Error updating task completion status", e);
+                });
+        }, task -> {
+            // Supprimer la tâche de Firebase
+            FirebaseUtils.getTaskRef(task, categoryName).removeValue()
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("CategoryFragment", "Task deleted from Firebase");
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("CategoryFragment", "Error deleting task", e);
+                });
         });
 
         completedTaskAdapter = new TaskAdapter(completedTasks, tasks, task -> {
-            // Ajouter la tâche de nouveau dans les tâches en cours
-            tasks.add(task);
-            completedTasks.remove(task);
-            taskAdapter.notifyDataSetChanged();
-            completedTaskAdapter.notifyDataSetChanged();
+            // Mettre à jour l'état dans Firebase
+            task.setCompleted(false);
+            FirebaseUtils.getTaskRef(task, categoryName).child("completed").setValue(false)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("CategoryFragment", "Task marked as uncompleted in Firebase");
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("CategoryFragment", "Error updating task completion status", e);
+                });
+        }, task -> {
+            // Supprimer la tâche de Firebase
+            FirebaseUtils.getTaskRef(task, categoryName).removeValue()
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("CategoryFragment", "Task deleted from Firebase");
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("CategoryFragment", "Error deleting task", e);
+                });
         });
         taskEventListener = new ValueEventListener() {
             @Override
