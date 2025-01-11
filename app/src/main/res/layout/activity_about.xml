@@ -91,13 +91,13 @@
             android:padding="16dp">
          <ImageView
 
-                    android:id="@+id/elGatoid"
-                    android:layout_width="200dp"
-                    android:layout_height="200dp"
-                    android:layout_gravity="center"
-                    android:contentDescription="@string/le_chat"
-                    android:scaleType="centerCrop"
-                    android:src="@mipmap/el_gato_foreground" />
+            android:id="@+id/elGatoid"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_gravity="center"
+            android:contentDescription="@string/le_chat"
+            android:scaleType="centerCrop"
+            android:src="@mipmap/el_gato_foreground" />
 
         <!-- CARD VIEW -->
         <androidx.cardview.widget.CardView
@@ -121,8 +121,11 @@
                     android:textSize="24sp"
                     android:textStyle="bold"
                     android:textColor="@color/black"
-                    android:padding="8dp"
-                    android:text="@string/a_propos" />
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"
+                    android:paddingBottom="8dp"
+                    android:text="@string/a_propos"
+                    android:gravity="center" />
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
