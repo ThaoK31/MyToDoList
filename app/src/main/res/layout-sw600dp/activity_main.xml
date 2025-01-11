@@ -20,6 +20,69 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
+            android:padding="16dp">
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <TextView
+            
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/app_name"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:gravity="center"/>
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/aboutButton"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:insetLeft="0dp"
+                android:insetTop="0dp"
+                android:insetRight="0dp"
+                android:insetBottom="0dp"
+                android:padding="0dp"
+                app:icon="@drawable/rounded_info_i_24"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                app:iconTint="@color/teal_200"
+                app:strokeColor="@color/teal_200"
+                android:contentDescription="@string/a_propos" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/settingsButton"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_marginStart="16dp"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:insetLeft="0dp"
+                android:insetTop="0dp"
+                android:insetRight="0dp"
+                android:insetBottom="0dp"
+                android:padding="0dp"
+                app:icon="@drawable/rounded_settings_24"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                app:iconTint="@color/teal_200"
+                app:strokeColor="@color/teal_200"
+                android:contentDescription="@string/parametres" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
             android:padding="8dp">
 
             <com.google.android.material.tabs.TabLayout
@@ -33,15 +96,22 @@
                 app:tabSelectedTextColor="@color/black"
                 app:tabTextColor="@color/gray"/>    
 
-            <ImageButton
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/addButton"
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:layout_marginStart="8dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/ajouter_une_categorie"
-                android:src="@drawable/round_add"
-                android:scaleType="center" />
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:insetLeft="0dp"
+                android:insetTop="0dp"
+                android:insetRight="0dp"
+                android:insetBottom="0dp"
+                android:padding="0dp"
+                app:icon="@drawable/rounded_add_24"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                app:iconTint="@color/teal_200"
+                android:contentDescription="@string/ajouter_une_categorie" />
         </LinearLayout>
 
     </com.google.android.material.appbar.AppBarLayout>

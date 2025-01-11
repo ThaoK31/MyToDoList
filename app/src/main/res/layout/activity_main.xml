@@ -7,7 +7,6 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <!-- AppBar avec TabLayout -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
@@ -15,6 +14,70 @@
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:layout_constraintTop_toTopOf="parent">
 
+        <!-- Ligne du titre et des boutons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="8dp">
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/app_name"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:gravity="center"/>
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/aboutButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:insetLeft="0dp"
+                android:insetTop="0dp"
+                android:insetRight="0dp"
+                android:insetBottom="0dp"
+                android:padding="0dp"
+                app:icon="@drawable/rounded_info_i_24"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                app:iconTint="@color/teal_200"
+                app:strokeColor="@color/teal_200"
+                android:contentDescription="@string/a_propos" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/settingsButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="8dp"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:insetLeft="0dp"
+                android:insetTop="0dp"
+                android:insetRight="0dp"
+                android:insetBottom="0dp"
+                android:padding="0dp"
+                app:icon="@drawable/rounded_settings_24"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                app:iconTint="@color/teal_200"
+                app:strokeColor="@color/teal_200"
+                android:contentDescription="@string/parametres" />
+        </LinearLayout>
+
+        <!-- Ligne du TabLayout et du bouton d'ajout -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -32,26 +95,32 @@
                 app:tabMode="scrollable"
                 app:tabSelectedTextColor="@color/black"
                 app:tabTextColor="@color/gray"/>
-            <ImageButton
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/addButton"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_marginStart="8dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/ajouter_une_categorie"
-                android:src="@drawable/round_add"
-                android:scaleType="center" />
-</LinearLayout>
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:insetLeft="0dp"
+                android:insetTop="0dp"
+                android:insetRight="0dp"
+                android:insetBottom="0dp"
+                android:padding="0dp"
+                app:icon="@drawable/rounded_add_24"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                app:iconTint="@color/teal_200"
+                android:contentDescription="@string/ajouter_une_categorie" />
+        </LinearLayout>
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Conteneur pour les fragments -->
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/appBarLayout"
-        />
+        app:layout_constraintTop_toBottomOf="@id/appBarLayout"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

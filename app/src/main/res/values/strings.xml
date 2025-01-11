@@ -3,4 +3,6 @@
     <string name="to_do_list">To-Do-List</string>
     <string name="ajouter_une_tache">Ajouter une tâche</string>
     <string name="ajouter_une_categorie">Ajouter une catégorie</string>
+    <string name="a_propos">A propos</string>
+    <string name="parametres">Paramètres</string>
 </resources>
