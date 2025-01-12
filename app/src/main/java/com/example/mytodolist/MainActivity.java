@@ -41,12 +41,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        
         // Vérifier si un utilisateur est connecté
-        currentUser = getSharedPreferences("user_prefs", MODE_PRIVATE)
-            .getString("current_user", null);
-
-        if (currentUser == null) {
+        if (!MyToDoListApp.getInstance().isUserLoggedIn()) {
             startActivity(new Intent(this, LoginActivity.class));
             finish();
             return;
