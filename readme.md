@@ -1,21 +1,21 @@
-===========================================================
+
 Liste des fonctionnalités implémentées :
-[x] Utilisation de l'Api Preference (Stockage des préférences utilisateur et du mode sombre)
-[~] Ecriture/lecture dans un Fichier
-[~] Utilisation de SQLite
-[~] Utilisation de Room
-[x] Utilisation de Firebase (Base de données temps réel pour les catégories et tâches, gestion des utilisateurs)
-[x] Nombre d'activités ou fragment supérieur ou égal à 3 (MainActivity, CategoryFragment, AboutActivity, SettingsActivity, LoginActivity, et gestion des fragments dynamiques pour chaque catégorie)
-[x] Gestion du bouton Back (message de confirmation pour quitter l'application)
-[x] L'affichage d'une liste avec son adapter (CategoryAdapter pour les onglets)
-[x] L'affichage d'une liste avec un custom adapter (TaskAdapter avec gestion des événements de cochage de modification et suppression)
-[x] La pertinence d'utilisation des layouts (L'application doit être responsive et supporter: portrait/paysage et tablette)
-[x] L'utilisation d'événement améliorant l'ux (Long press sur les onglets pour supprimer une catégorie, mode sombre, confirmation par boite de dialogue pour des actions importantes)
-[~] La réalisation de composant graphique custom (Paint 2D, Calendrier,...) Préciser : 
-[~] Les taches en background (codage du démarrage d'un thread)
-[x] Le codage d'un menu (TabLayout avec menu d'ajout de catégorie)
-[x] L'application de pattern (MVC pour la gestion des tâches, Adapter pattern pour les listes, Singleton pour MyToDoListApp)
-===========================================================
+- [x] Utilisation de l'Api Preference (Stockage des préférences utilisateur et du mode sombre)
+- [ ] Ecriture/lecture dans un Fichier
+- [ ] Utilisation de SQLite
+- [ ] Utilisation de Room
+- [x] Utilisation de Firebase (Base de données temps réel pour les catégories et tâches, gestion des utilisateurs)
+- [x] Nombre d'activités ou fragment supérieur ou égal à 3 (MainActivity, CategoryFragment, AboutActivity, SettingsActivity, LoginActivity, et gestion des fragments dynamiques pour chaque catégorie)
+- [x] Gestion du bouton Back (message de confirmation pour quitter l'application)
+- [x] L'affichage d'une liste avec son adapter (CategoryAdapter pour les onglets)
+- [x] L'affichage d'une liste avec un custom adapter (TaskAdapter avec gestion des événements de cochage de modification et suppression)
+- [x] La pertinence d'utilisation des layouts (L'application doit être responsive et supporter: portrait/paysage et tablette)
+- [x] L'utilisation d'événement améliorant l'ux (Long press sur les onglets pour supprimer une catégorie, mode sombre, confirmation par boite de dialogue pour des actions importantes)
+- [ ] La réalisation de composant graphique custom (Paint 2D, Calendrier,...) Préciser : 
+- [ ] Les taches en background (codage du démarrage d'un thread)
+- [x] Le codage d'un menu (TabLayout avec menu d'ajout de catégorie)
+- [x] L'application de pattern (MVC pour la gestion des tâches, Adapter pattern pour les listes, Singleton pour MyToDoListApp)
+
 # MyToDoList
 
 MyToDoList est une application Android de gestion de tâches intuitive et personnalisable. Elle permet aux utilisateurs de gérer efficacement leurs tâches quotidiennes en les organisant par catégories.
