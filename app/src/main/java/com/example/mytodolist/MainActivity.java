@@ -36,12 +36,22 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager2 viewPager;
     private DatabaseReference categoriesRef;
     private MaterialButton addButton;
-
-
+    private String currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Vérifier si un utilisateur est connecté
+        currentUser = getSharedPreferences("user_prefs", MODE_PRIVATE)
+            .getString("current_user", null);
+
+        if (currentUser == null) {
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+            return;
+        }
+
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -93,15 +103,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Associer l'adaptateur à la vue ViewPager
         viewPager.setAdapter(categoryAdapter);
-        
-        // Empêcher le swipe horizontal si pas de catégories
-        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-            @Override
-            public void onPageSelected(int position) {
-                super.onPageSelected(position);
-                Log.d("MainActivity", "Page sélectionnée: " + position);
-            }
-        });
+
 
         // Associer la vue TabLayout à la vue ViewPager
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
