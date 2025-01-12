@@ -119,7 +119,7 @@ public class CategoryFragment extends Fragment {
                 .addOnFailureListener(e -> {
                     Log.e("CategoryFragment", "Erreur lors de la suppression de la tâche", e);
                 });
-        });
+        }, task -> showEditTaskDialog(task));
 
         completedTaskAdapter = new TaskAdapter(completedTasks, tasks, task -> {
             task.setCompleted(false);
@@ -138,7 +138,7 @@ public class CategoryFragment extends Fragment {
                 .addOnFailureListener(e -> {
                     Log.e("CategoryFragment", "Erreur lors de la suppression de la tâche", e);
                 });
-        });
+        }, task -> showEditTaskDialog(task));
         taskEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -222,4 +222,27 @@ public class CategoryFragment extends Fragment {
         builder.setNegativeButton("Annuler", (dialog, which) -> dialog.cancel());
         builder.show();
     }
+
+    private void showEditTaskDialog(Task task) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Modifier la tâche");
+
+        final EditText input = new EditText(requireContext());
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        input.setText(task.getTitle());
+        builder.setView(input);
+
+        builder.setPositiveButton("Modifier", (dialog, which) -> {
+            String newTitle = input.getText().toString().trim();
+            if (!newTitle.isEmpty()) {
+                FirebaseUtils.getTaskRef(task, categoryName, currentUser)
+                    .child("title").setValue(newTitle)
+                    .addOnSuccessListener(aVoid -> Log.d("CategoryFragment", "Tâche modifiée avec succès"))
+                    .addOnFailureListener(e -> Log.e("CategoryFragment", "Erreur lors de la modification", e));
+            }
+        });
+        builder.setNegativeButton("Annuler", (dialog, which) -> dialog.cancel());
+        builder.show();
+    }
+
 }
