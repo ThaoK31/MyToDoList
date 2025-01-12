@@ -1,5 +1,6 @@
 package com.example.mytodolist;
 
+import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +23,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     private List<Task> otherList; // Liste pour déplacer la tâche
     private final OnTaskCheckedListener onTaskCheckedListener;
     private final OnTaskDeleteListener onTaskDeleteListener;
+    private String currentUser;
 
     public interface OnTaskCheckedListener {
         void onTaskChecked(Task task);
@@ -42,6 +44,9 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     @Override
     public TaskViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_task, parent, false);
+        // Récupérer l'utilisateur courant
+        currentUser = parent.getContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE).
+            getString("current_user", null);
         return new TaskViewHolder(view);
     }
 
@@ -83,18 +88,18 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             onTaskCheckedListener.onTaskChecked(task);
 
             // Vérifiez que l'ID et le nom de catégorie sont définis
-            if (task.getId() == null || task.getCategoryName() == null) {
-                Log.e("TaskAdapter", "L'ID ou le nom de catégorie est null. Impossible de mettre à jour Firebase.");
+            if (task.getId() == null || task.getCategoryName() == null || currentUser == null) {
+                Log.e("TaskAdapter", "L'ID, le nom de catégorie ou l'utilisateur est null. Impossible de mettre à jour Firebase.");
                 return;
             }
 
             // Mise à jour dans Firebase
-            FirebaseUtils.getTaskRef(task, task.getCategoryName()).child("completed").setValue(isChecked)
-                .addOnCompleteListener(updatetask -> {
-                    if (updatetask.isSuccessful()) {
+            FirebaseUtils.getTaskRef(task, task.getCategoryName(), currentUser).child("completed").setValue(isChecked)
+                .addOnCompleteListener(updateTask -> {
+                    if (updateTask.isSuccessful()) {
                         Log.d("TaskAdapter", "État de la tâche mis à jour dans Firebase.");
                     } else {
-                        Log.e("TaskAdapter", "Erreur lors de la mise à jour de la tâche.", updatetask.getException());
+                        Log.e("TaskAdapter", "Erreur lors de la mise à jour de la tâche.", updateTask.getException());
                     }
                 });
         });
