@@ -23,6 +23,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     private List<Task> otherList; // Liste pour déplacer la tâche
     private final OnTaskCheckedListener onTaskCheckedListener;
     private final OnTaskDeleteListener onTaskDeleteListener;
+    private final OnTaskEditListener onTaskEditListener;
     private String currentUser;
 
     public interface OnTaskCheckedListener {
@@ -33,11 +34,16 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         void onTaskDelete(Task task);
     }
 
-    public TaskAdapter(List<Task> taskList, List<Task> otherList, OnTaskCheckedListener onTaskCheckedListener, OnTaskDeleteListener onTaskDeleteListener) {
+    public interface OnTaskEditListener {
+        void onTaskEdit(Task task);
+    }
+
+    public TaskAdapter(List<Task> taskList, List<Task> otherList, OnTaskCheckedListener onTaskCheckedListener, OnTaskDeleteListener onTaskDeleteListener, OnTaskEditListener onTaskEditListener) {
         this.taskList = taskList;
         this.otherList = otherList;
         this.onTaskCheckedListener = onTaskCheckedListener;
         this.onTaskDeleteListener = onTaskDeleteListener;
+        this.onTaskEditListener = onTaskEditListener;
     }
 
     @NonNull
@@ -103,6 +109,12 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
                     }
                 });
         });
+
+        holder.editButton.setOnClickListener(v -> {
+            if (onTaskEditListener != null) {
+                onTaskEditListener.onTaskEdit(task);
+            }
+        });
     }
 
     @Override
@@ -114,12 +126,14 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         TextView taskTitle;
         CheckBox taskCheckBox;
         ImageButton deleteButton;
+        ImageButton editButton;
 
         public TaskViewHolder(@NonNull View itemView) {
             super(itemView);
             taskTitle = itemView.findViewById(R.id.taskTitle);
             taskCheckBox = itemView.findViewById(R.id.taskCheckBox);
             deleteButton = itemView.findViewById(R.id.deleteTaskButton);
+            editButton = itemView.findViewById(R.id.editTaskButton);
         }
     }
 }

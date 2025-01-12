@@ -9,17 +9,29 @@
 
     <CheckBox
         android:id="@+id/taskCheckBox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:scaleX="1"
+        android:scaleY="1"
+        />
 
     <TextView
         android:id="@+id/taskTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:padding="8dp"
+        android:padding="2dp"
         android:textSize="16sp"
         android:textColor="@color/black" />
+
+    <ImageButton
+        android:id="@+id/editTaskButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/rounded_edit_24"
+        android:contentDescription="Modifier la tâche"
+        android:padding="2dp" />
 
     <ImageButton
         android:id="@+id/deleteTaskButton"
@@ -28,6 +40,6 @@
         android:background="?attr/selectableItemBackgroundBorderless"
         android:src="@android:drawable/ic_menu_delete"
         android:contentDescription="Supprimer la tâche"
-        android:padding="8dp" />
+        android:padding="2dp" />
 </LinearLayout>
 
