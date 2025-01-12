@@ -83,6 +83,9 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        // Récupérer l'utilisateur courant depuis les SharedPreferences
+        currentUser = getSharedPreferences("user_prefs", MODE_PRIVATE)
+            .getString("current_user", null);
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         categoriesRef = database.getReference("users").child(currentUser).child("categories");
