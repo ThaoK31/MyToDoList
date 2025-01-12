@@ -6,12 +6,12 @@
     <string name="a_propos">A propos</string>
     <string name="parametres">Paramètres</string>
     <string name="home">home</string>
-    <string name="description_application">MyToDoList est une application de gestion de tâches intuitive et efficace.</string>
-    <string name="fonctionnalites">Fonctionnalités</string>
-    <string name="liste_fonctionnalites">• Création de catégories personnalisées\n• Gestion des tâches par catégorie\n• Synchronisation en temps réel\n• Interface adaptative (tablette et orientation)</string>
-    <string name="technologies_utilisees">Technologies utilisées</string>
-    <string name="liste_technologies">• Firebase Realtime Database\n• Material Design Components\n• ViewPager2 et TabLayout</string>
-    <string name="developpeur">Développeur</string>
-    <string name="info_developpeur">Développé par Lucas REMERY\nÉtudiant en Bachelor Informatique \nSpécialité Developpement</string>
+    <string name="description_application">MyToDoList est une application de gestion de tâches intuitive et personnalisable.</string>
+    <string name="fonctionnalites">Fonctionnalités principales :</string>
+    <string name="liste_fonctionnalites">• Gestion de tâches par catégories\n• Marquage des tâches comme terminées\n• Modification et suppression des tâches\n• Mode sombre personnalisable\n• Synchronisation avec Firebase\n• Comptes utilisateurs personnalisés</string>
+    <string name="technologies_utilisees">Technologies utilisées :</string>
+    <string name="liste_technologies">• Firebase Realtime Database\n• Material Design Components\n• SharedPreferences\n• RecyclerView avec adaptateurs personnalisés\n• Fragments dynamiques</string>
+    <string name="developpeur">Développé par :</string>
+    <string name="info_developpeur">Étudiant en Bachelor 3 Informatique à Ynov</string>
     <string name="le_chat">EL GATO</string>
 </resources>
