@@ -1,6 +1,8 @@
 package com.example.mytodolist;
 
 import android.app.AlertDialog;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
@@ -33,6 +35,7 @@ public class CategoryFragment extends Fragment {
     //
     private static final String ARG_CATEGORY_NAME = "category_name";
     private String categoryName;
+    private String currentUser;
 
     private RecyclerView recyclerViewTasks;
     private RecyclerView recyclerViewCompletedTasks;
@@ -62,18 +65,22 @@ public class CategoryFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_category, container, false);
 
         // Récupérer le nom de la catégorie
-        String categoryName = getArguments().getString(ARG_CATEGORY_NAME);
-        Log.d("CategoryFragment", "Nom de la catégorie : " + categoryName);
+        categoryName = getArguments().getString(ARG_CATEGORY_NAME);
+        
+        // Récupérer l'utilisateur courant
+        currentUser = requireActivity().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+            .getString("current_user", null);
+
+        if (currentUser == null) {
+            // Rediriger vers login si pas d'utilisateur
+            startActivity(new Intent(requireActivity(), LoginActivity.class));
+            requireActivity().finish();
+            return view;
+        }
 
         // Initialiser la référence à la base de données
-        //categories/
-        //  categoryName/
-        //    tasks/
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        taskRef = FirebaseUtils.getCategoryRef(categoryName, currentUser).child("tasks");
 
-        taskRef = database.getReference("categories").child(categoryName).child("tasks");
-
-        Log.d("CategoryFragment", "onCreateView: " + taskRef.toString());
         // Initialisation des TextView pour les titres
         TextView categoryTitle = view.findViewById(R.id.textViewCategoryTitle);
         TextView completedTitle = view.findViewById(R.id.textViewCompletedTitle);
@@ -96,63 +103,57 @@ public class CategoryFragment extends Fragment {
 
         // Initialisation des adaptateurs
         taskAdapter = new TaskAdapter(tasks, completedTasks, task -> {
-            // Mettre à jour l'état dans Firebase
             task.setCompleted(true);
-            FirebaseUtils.getTaskRef(task, categoryName).child("completed").setValue(true)
+            FirebaseUtils.getTaskRef(task, categoryName, currentUser).child("completed").setValue(true)
                 .addOnSuccessListener(aVoid -> {
-                    Log.d("CategoryFragment", "Task marked as completed in Firebase");
+                    Log.d("CategoryFragment", "Tâche marquée comme terminée dans Firebase");
                 })
                 .addOnFailureListener(e -> {
-                    Log.e("CategoryFragment", "Error updating task completion status", e);
+                    Log.e("CategoryFragment", "Erreur lors de la mise à jour de l'état de la tâche", e);
                 });
         }, task -> {
-            // Supprimer la tâche de Firebase
-            FirebaseUtils.getTaskRef(task, categoryName).removeValue()
+            FirebaseUtils.getTaskRef(task, categoryName, currentUser).removeValue()
                 .addOnSuccessListener(aVoid -> {
-                    Log.d("CategoryFragment", "Task deleted from Firebase");
+                    Log.d("CategoryFragment", "Tâche supprimée de Firebase");
                 })
                 .addOnFailureListener(e -> {
-                    Log.e("CategoryFragment", "Error deleting task", e);
+                    Log.e("CategoryFragment", "Erreur lors de la suppression de la tâche", e);
                 });
         });
 
         completedTaskAdapter = new TaskAdapter(completedTasks, tasks, task -> {
-            // Mettre à jour l'état dans Firebase
             task.setCompleted(false);
-            FirebaseUtils.getTaskRef(task, categoryName).child("completed").setValue(false)
+            FirebaseUtils.getTaskRef(task, categoryName, currentUser).child("completed").setValue(false)
                 .addOnSuccessListener(aVoid -> {
-                    Log.d("CategoryFragment", "Task marked as uncompleted in Firebase");
+                    Log.d("CategoryFragment", "Tâche marquée comme non terminée dans Firebase");
                 })
                 .addOnFailureListener(e -> {
-                    Log.e("CategoryFragment", "Error updating task completion status", e);
+                    Log.e("CategoryFragment", "Erreur lors de la mise à jour de l'état de la tâche", e);
                 });
         }, task -> {
-            // Supprimer la tâche de Firebase
-            FirebaseUtils.getTaskRef(task, categoryName).removeValue()
+            FirebaseUtils.getTaskRef(task, categoryName, currentUser).removeValue()
                 .addOnSuccessListener(aVoid -> {
-                    Log.d("CategoryFragment", "Task deleted from Firebase");
+                    Log.d("CategoryFragment", "Tâche supprimée de Firebase");
                 })
                 .addOnFailureListener(e -> {
-                    Log.e("CategoryFragment", "Error deleting task", e);
+                    Log.e("CategoryFragment", "Erreur lors de la suppression de la tâche", e);
                 });
         });
         taskEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                tasks.clear(); // Réinitialise la liste locale
+                tasks.clear();
                 completedTasks.clear();
                 if (snapshot.exists()) {
-                    Log.d("CategoryFragment", "Nombre d'éléments dans snapshot : " + snapshot.getChildrenCount());
+                    Log.d("CategoryFragment", "Nombre de tâches trouvées : " + snapshot.getChildrenCount());
                     for (DataSnapshot taskSnapshot : snapshot.getChildren()) {
-
-                        // Vérifiez si les données peuvent être converties en un objet Task
                         try {
                             Task task = taskSnapshot.getValue(Task.class); // Convertir les données Firebase en objet Task
                             if (task != null) {
                                 if (task.isCompleted()) {
-                                    completedTasks.add(task); // Ajouter aux tâches terminées
+                                    completedTasks.add(task);
                                 } else {
-                                    tasks.add(task); // Ajouter aux tâches en cours
+                                    tasks.add(task);
                                 }
                             }
                         } catch (DatabaseException e) {
@@ -161,16 +162,14 @@ public class CategoryFragment extends Fragment {
                     }
                     taskAdapter.notifyDataSetChanged();
                     completedTaskAdapter.notifyDataSetChanged();
+                } else {
+                    Log.d("CategoryFragment", "Aucune tâche trouvée dans cette catégorie");
                 }
-                else {
-                    Log.d("CategoryFragment", "Aucune tâche trouvée");
-                }
-
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.w("APPX", "Failed to read value.", error.toException());
+                Log.e("CategoryFragment", "Erreur de lecture des données Firebase", error.toException());
             }
         };
         taskRef.addValueEventListener(taskEventListener);
@@ -202,29 +201,22 @@ public class CategoryFragment extends Fragment {
 
         builder.setPositiveButton("Ajouter", (dialog, which) -> {
             String taskName = input.getText().toString();
-            Log.d("CategoryFragment", "Nom de la tâche : " + taskName);
             if (!taskName.isEmpty()) {
-                String categoryName = getArguments().getString(ARG_CATEGORY_NAME);
-
-            // Générer un ID unique pour la tâche
+                // Générer un ID unique pour la tâche
                 DatabaseReference newTaskRef = taskRef.push();
                 String id = newTaskRef.getKey();
 
-                Log.d("CategoryFragment", "categoryName" + categoryName);
-                Task newTask =new Task(id, taskName, false, categoryName);
-                Log.d("CategoryFragment","Nouvelle tâche : " + newTask.getTitle());
-
-                // Ajouter la tâche dans la base de données
-                Log.d("CategoryFragment", taskRef.toString());
-                newTaskRef.setValue(newTask).addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        Log.d("CategoryFragment", "Tâche ajoutée avec succès !");
-                        taskAdapter.notifyDataSetChanged();
-
-                    } else {
-                        Log.e("CategoryFragment", "Erreur lors de l'ajout de la tâche", task.getException());
-                    }
-                });
+                Task newTask = new Task(id, taskName, false, categoryName);
+                
+                FirebaseUtils.getTaskRef(newTask, categoryName, currentUser)
+                    .setValue(newTask)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            Log.d("CategoryFragment", "Tâche ajoutée avec succès !");
+                        } else {
+                            Log.e("CategoryFragment", "Erreur lors de l'ajout de la tâche", task.getException());
+                        }
+                    });
             }
         });
         builder.setNegativeButton("Annuler", (dialog, which) -> dialog.cancel());

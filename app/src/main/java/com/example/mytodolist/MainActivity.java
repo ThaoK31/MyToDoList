@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        categoriesRef = database.getReference("categories");
+        categoriesRef = database.getReference("users").child(currentUser).child("categories");
 
         // Charger les catégories depuis Firebase
         loadCategoriesFromFirebase();
